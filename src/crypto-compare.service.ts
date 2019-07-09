@@ -36,6 +36,23 @@ export class CryptoCompareService {
       });
     });
   }
+  
+  /**
+   * unsubscribe to API and returns observable of CcResponse objects
+   * @param subsciptions
+   */
+  disconnect(subsciptions: CcMarketSubscription);
+  disconnect(subscriptions: Array<CcMarketSubscription>);
+  disconnect(subscriptions: any){
+    let subs: Array<CcMarketSubscription> = [];
+    if (!Array.isArray(subscriptions)) {
+      subs.push(subscriptions);
+    } else {
+      subs = subscriptions;
+    }
+    
+    this.unSubscribeToMarketData(subs);
+  }
 
   /**
    * Subscribes to market data by emitting 'SubAdd'
@@ -45,6 +62,17 @@ export class CryptoCompareService {
   private subscribeToMarketData(subscriptions: Array<CcMarketSubscription>): void {
     if (this.socket) {
       this.socket.emit('SubAdd', {subs: subscriptions.map(s => s.packed)});
+    }
+  }
+  
+  /**
+   * unSubscribes to market data by emitting 'SubRemove'
+   * including a list of items you want to get updates on.
+   * @param subscriptions
+   */
+  private unSubscribeToMarketData(subscriptions: Array<CcMarketSubscription>): void {
+    if (this.socket) {
+      this.socket.emit('SubRemove', {subs: subscriptions.map(s => s.packed)});
     }
   }
 }
